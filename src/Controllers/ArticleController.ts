@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { validationResult } from "express-validator";
 import CatchError from "../Classes/CatchError";
 import Article from "../Models/Article";
 
@@ -6,10 +7,13 @@ class ArticlesController {
     static async create(
         req: Request,
         res: Response,
-        next: NextFunction
-    ): Promise<void> {
+        // next: NextFunction
+    ): Promise<any> {
         const body = req.body;
-
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         res.send(body);
     }
 
@@ -56,9 +60,9 @@ class ArticlesController {
     }
 
     static async articleWidthSlug(
-        req: Request,
-        res: Response,
-        next: NextFunction
+        // req: Request,
+        // res: Response,
+        // next: NextFunction
     ): Promise<void> {}
 }
 
