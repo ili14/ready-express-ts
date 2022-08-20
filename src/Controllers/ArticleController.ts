@@ -2,19 +2,39 @@ import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import CatchError from "../Classes/CatchError";
 import Article from "../Models/Article";
+import ApiResponseFormat, {
+    ErrorObjectType,
+} from "../Classes/ApiResponseFormat";
 
 class ArticlesController {
     static async create(
         req: Request,
         res: Response,
-        // next: NextFunction
+        next: NextFunction
     ): Promise<any> {
         const body = req.body;
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return res
+                .status(422)
+                .json(ApiResponseFormat.unSuccessArr(errors.array()));
         }
-        res.send(body);
+        // successfully
+        if ((await Article.findOne({ slug: req.body.slug })) == null) {
+            await Article.create({ ...req.body });
+            res.status(200).json(
+                ApiResponseFormat.successMsg("مطلب ساخته شد.")
+            );
+            return;
+        }
+        // unSuccessful
+        const myErrors: ErrorObjectType[] = [];
+        myErrors.push({
+            msg: "نام مستعار تکراری است.",
+            param: "slug",
+            location: "body",
+        });
+        res.status(409).json(ApiResponseFormat.unSuccessArr(myErrors));
     }
 
     static async articlesWithPage(
@@ -36,7 +56,8 @@ class ArticlesController {
                     error: "not any article found tn this page.",
                 });
 
-            res.send(articles);
+            res.json(ApiResponseFormat.successArr(articles));
+
         } catch (error) {
             next(new CatchError(error, "not any article found tn this page."));
         }
@@ -49,21 +70,21 @@ class ArticlesController {
     ): Promise<void> {
         try {
             const slug = req.params.slug;
-            const articles = await Article.findOne({ slug: slug });
-            process.stdout.write("articles: ");
-            console.log(articles);
+            const article = await Article.findOne({ slug: slug });
+            process.stdout.write("article: ");
+            console.log(article);
 
-            res.send(articles);
+            // todo: check not null article
+            res.json(article);
         } catch (error) {
             next();
         }
     }
 
     static async articleWidthSlug(
-        // req: Request,
-        // res: Response,
-        // next: NextFunction
+        req: Request,
+        res: Response,
+        next: NextFunction
     ): Promise<void> {}
 }
-
 export default ArticlesController;

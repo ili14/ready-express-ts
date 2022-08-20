@@ -14,7 +14,6 @@ import serveIndex from "serve-index";
 import mongoose from "mongoose";
 import chalk from "chalk";
 import timeout from "connect-timeout";
-import Article from "./Models/Article";
 import Routes from "./Routes/Routes";
 
 const port = process.env.PORT || process.env.MY_PORT;

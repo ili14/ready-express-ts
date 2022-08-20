@@ -1,5 +1,15 @@
-import { checkSchema } from "express-validator";
+import { body, checkSchema, CustomValidator } from "express-validator";
 import { isFloat32Array } from "util/types";
+
+const customSlugValidator: CustomValidator = (val, { req, location, path }) => {
+    console.log(val);
+    if (typeof val === "string") {
+        if (val.includes(" ")) {
+            return false;
+        }
+    }
+    return val + req.body.foo + location + path;
+};
 
 const create = checkSchema({
     title: {
@@ -23,8 +33,13 @@ const create = checkSchema({
     },
     cats: {
         notEmpty: {
-            errorMessage: "دسته لطفا حداقل یک دسته بندی را انتخاب کنید.",
-            options: { ignore_whitespace: true },
+            errorMessage: " لطفا حداقل یک دسته بندی را انتخاب کنید.",
+            options: { ignore_whitespace: false },
+        },
+        isArray: {
+            errorMessage:
+                "دسته بندی باید یک آرایه باشد و حداقل یک دسته بندی انتخاب شده باشد.",
+            options: { min: 1 },
         },
     },
     slug: {
@@ -32,7 +47,13 @@ const create = checkSchema({
             errorMessage: "اسم مستعار حداقل باید 3 حرف باشد.",
             options: { min: 3 },
         },
+        custom: {
+            options: [customSlugValidator],
+            errorMessage: "نام مستفار نباید اسپیس داشته باشد.",
+        },
         isString: { errorMessage: " برای اسم مستعار باید یک متن انتخاب شود." },
     },
 });
+
+
 export default { create };
