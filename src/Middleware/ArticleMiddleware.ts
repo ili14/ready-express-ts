@@ -2,7 +2,6 @@ import { body, checkSchema, CustomValidator } from "express-validator";
 import { isFloat32Array } from "util/types";
 
 const customSlugValidator: CustomValidator = (val, { req, location, path }) => {
-    console.log(val);
     if (typeof val === "string") {
         if (val.includes(" ")) {
             return false;

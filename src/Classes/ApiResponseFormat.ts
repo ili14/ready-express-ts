@@ -38,7 +38,7 @@ class ApiResponseFormat {
     static successArr(data: any[]): {
         status: "success";
         mode: ModeType;
-        data: [];
+        data: any[];
     } {
         return {
             status: "success",

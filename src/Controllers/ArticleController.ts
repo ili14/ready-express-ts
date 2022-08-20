@@ -5,6 +5,7 @@ import Article from "../Models/Article";
 import ApiResponseFormat, {
     ErrorObjectType,
 } from "../Classes/ApiResponseFormat";
+import HelperValidator from "../Classes/HelperValidator";
 
 class ArticlesController {
     static async create(
@@ -57,34 +58,66 @@ class ArticlesController {
                 });
 
             res.json(ApiResponseFormat.successArr(articles));
-
         } catch (error) {
             next(new CatchError(error, "not any article found tn this page."));
         }
     }
 
-    static async article(
+    static async articleWithSlug(
         req: Request,
         res: Response,
         next: NextFunction
-    ): Promise<void> {
+    ): Promise<any> {
         try {
             const slug = req.params.slug;
             const article = await Article.findOne({ slug: slug });
             process.stdout.write("article: ");
             console.log(article);
-
-            // todo: check not null article
-            res.json(article);
+            // if article not found
+            if (article === null) {
+                const errors: Array<ErrorObjectType> = [
+                    {
+                        msg: "چنین مطلبی یافت نشد",
+                        param: "slug",
+                        location: "param",
+                    },
+                ];
+                return res.json(ApiResponseFormat.unSuccessArr(errors));
+            }
+            res.json(ApiResponseFormat.successObj(article));
         } catch (error) {
-            next();
+            next(error);
         }
     }
 
-    static async articleWidthSlug(
+    static async articleWithId(
         req: Request,
         res: Response,
         next: NextFunction
-    ): Promise<void> {}
+    ): Promise<any> {
+        try {
+            if (HelperValidator.isHaveErrorThenSendJson(req, res)) return;
+            const id = req.params.id;
+            console.log(id);
+            const article = await Article.findById(id);
+            process.stdout.write("article: ");
+            console.log(article);
+            // if article not found
+            if (article === null) {
+                const errors: Array<ErrorObjectType> = [
+                    {
+                        msg: "چنین مطلبی یافت نشد",
+                        param: "id",
+                        location: "param",
+                    },
+                ];
+                return res.json(ApiResponseFormat.unSuccessArr(errors));
+            }
+            res.json(ApiResponseFormat.successObj(article));
+        } catch (error) {
+            next(error);
+        }
+    }
 }
+
 export default ArticlesController;
