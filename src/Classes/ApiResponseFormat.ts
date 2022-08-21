@@ -4,7 +4,7 @@ import { Result, ValidationError } from "express-validator";
 type StatusType = "success" | "unsuccess";
 type ModeType = "message" | "object" | "array";
 type LocationType = "body" | "params" | "query" | "headers" | "cookies";
-type ErrorObjectType = {
+type ResponseErrorObjectType = {
     location: string;
     msg: string;
     param: string;
@@ -60,4 +60,4 @@ class ApiResponseFormat {
 }
 
 export default ApiResponseFormat;
-export {ErrorObjectType};
+export {ResponseErrorObjectType};

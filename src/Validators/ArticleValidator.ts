@@ -1,5 +1,4 @@
-import { body, checkSchema, CustomValidator } from "express-validator";
-import { isFloat32Array } from "util/types";
+import {  checkSchema, CustomValidator } from "express-validator";
 
 const customSlugValidator: CustomValidator = (val, { req, location, path }) => {
     if (typeof val === "string") {

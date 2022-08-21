@@ -65,7 +65,8 @@ const clientErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
 const errorHandler: ErrorRequestHandler = function (err, req, res, next) {
     let clientError: any = err;
     if(typeof err.clientError !== "undefined") clientError = err.clientError;
-    
+
+    // TODO: send error ApiResponseFormat.ts
     res.status(500);
     res.send({ error: clientError });
 };

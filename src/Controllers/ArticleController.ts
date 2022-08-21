@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import CatchError from "../Classes/CatchError";
 import Article from "../Models/Article";
 import ApiResponseFormat, {
-    ErrorObjectType,
+    ResponseErrorObjectType,
 } from "../Classes/ApiResponseFormat";
 import HelperValidator from "../Classes/HelperValidator";
 
@@ -14,12 +14,7 @@ class ArticlesController {
         next: NextFunction
     ): Promise<any> {
         const body = req.body;
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res
-                .status(422)
-                .json(ApiResponseFormat.unSuccessArr(errors.array()));
-        }
+        if (HelperValidator.isHaveErrorThenSendJson(req, res)) return;
         // successfully
         if ((await Article.findOne({ slug: req.body.slug })) == null) {
             await Article.create({ ...req.body });
@@ -29,7 +24,7 @@ class ArticlesController {
             return;
         }
         // unSuccessful
-        const myErrors: ErrorObjectType[] = [];
+        const myErrors: ResponseErrorObjectType[] = [];
         myErrors.push({
             msg: "نام مستعار تکراری است.",
             param: "slug",
@@ -45,7 +40,7 @@ class ArticlesController {
     ): Promise<any> {
         try {
             const pageNumber = Number(req.query.page);
-            const perPageCount = 2;
+            const perPageCount = 4;
             // const articlesCount = await Article.count();
 
             const articles = await Article.find()
@@ -75,14 +70,14 @@ class ArticlesController {
             console.log(article);
             // if article not found
             if (article === null) {
-                const errors: Array<ErrorObjectType> = [
+                const errors: Array<ResponseErrorObjectType> = [
                     {
                         msg: "چنین مطلبی یافت نشد",
                         param: "slug",
                         location: "param",
                     },
                 ];
-                return res.json(ApiResponseFormat.unSuccessArr(errors));
+                return res.status(400).json(ApiResponseFormat.unSuccessArr(errors));
             }
             res.json(ApiResponseFormat.successObj(article));
         } catch (error) {
@@ -104,14 +99,14 @@ class ArticlesController {
             console.log(article);
             // if article not found
             if (article === null) {
-                const errors: Array<ErrorObjectType> = [
+                const errors: Array<ResponseErrorObjectType> = [
                     {
                         msg: "چنین مطلبی یافت نشد",
                         param: "id",
                         location: "param",
                     },
                 ];
-                return res.json(ApiResponseFormat.unSuccessArr(errors));
+                return res.status(400).json(ApiResponseFormat.unSuccessArr(errors));
             }
             res.json(ApiResponseFormat.successObj(article));
         } catch (error) {
