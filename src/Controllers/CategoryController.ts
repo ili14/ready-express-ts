@@ -1,7 +1,7 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 import HelperValidator from "../Classes/HelperValidator";
 import Category from "../Models/Category";
-import {Types} from "mongoose";
+import { Types } from "mongoose";
 import ApiResponseFormat, {
     ResponseErrorObjectType,
 } from "../Classes/ApiResponseFormat";
@@ -12,10 +12,23 @@ enum ForEnum {
 }
 
 class CategoryController {
-    static async index(req: Request, res: Response, next: NextFunction): Promise<any> {
+    static async getAll(req: Request, res: Response): Promise<any> {
+        console.log("getAll");
+        const categories = await Category.find({});
+        console.log(categories);
+        if (categories === null) {
+            return res
+                .status(200)
+                .json(ApiResponseFormat.successMsg("هیچ دسته بندی یافت نشد."));
+        }
+        return res.status(200).json(ApiResponseFormat.successArr(categories));
     }
 
-    static async create(req: Request, res: Response, next: NextFunction): Promise<any> {
+    static async create(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<any> {
         const body = req.body;
         if (HelperValidator.isHaveErrorThenSendJson(req, res)) return;
         let newCategory: { title: String; for: ForEnum; parentId?: String } = {
@@ -28,33 +41,23 @@ class CategoryController {
         } else {
             console.log("parentId is exsist");
             // check parentId is valid if not then send error
-            if (!Types.ObjectId.isValid(body.parentId)) {
-                const error: ResponseErrorObjectType = {
-                    param: "parentId",
-                    msg: "ای دی دسته بندی والد درست نیست.",
-                    location: "body",
-                };
-                return res
-                    .status(409)
-                    .json(ApiResponseFormat.unSuccessArr([error]));
-            }
+
             newCategory.parentId = body.parentId;
         }
 
         try {
             await Category.create(newCategory);
-            return res.status(200).json(ApiResponseFormat.successMsg("دسته بندی ساخته شد"));
-
-        }catch (err) {
-            next(err)
+            return res
+                .status(200)
+                .json(ApiResponseFormat.successMsg("دسته بندی ساخته شد"));
+        } catch (err) {
+            next(err);
         }
     }
 
-    static async update(req: Request, res: Response): Promise<any> {
-    }
+    static async update(req: Request, res: Response): Promise<any> {}
 
-    static async delete(req: Request, res: Response): Promise<any> {
-    }
+    static async delete(req: Request, res: Response): Promise<any> {}
 }
 
 export default CategoryController;

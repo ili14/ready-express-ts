@@ -1,6 +1,6 @@
 import { Router } from "express";
 import ArticlesController from "../Controllers/ArticleController";
-import { param,  } from "express-validator";
+import { param } from "express-validator";
 import { Types } from "mongoose";
 import ObjectId = Types.ObjectId;
 import CategoryController from "../Controllers/CategoryController";
@@ -28,7 +28,10 @@ router.route("/articles/:id/id").get(
 );
 
 // Categories
-router.route("/categories/").post(CategoryValidator.create,CategoryController.create)
+router
+    .route("/categories/")
+    .post(CategoryValidator.create, CategoryController.create)
+    .get(CategoryController.getAll);
 
 const ApiR = router;
 export default ApiR;

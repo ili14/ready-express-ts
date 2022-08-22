@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+
 dotenv.config();
 import express, {
     ErrorRequestHandler,
@@ -15,6 +16,7 @@ import mongoose from "mongoose";
 import chalk from "chalk";
 import timeout from "connect-timeout";
 import Routes from "./Routes/Routes";
+import ApiResponseFormat from "./Classes/ApiResponseFormat";
 
 const port = process.env.PORT || process.env.MY_PORT;
 
@@ -45,7 +47,7 @@ const haltOnTimedout: RequestHandler = (req, res, next) => {
 };
 const logErrors: ErrorRequestHandler = function (err, req, res, next) {
     let error: any = err;
-    if(typeof err.clientError !== "undefined") error = err.originalError;
+    if (typeof err.clientError !== "undefined") error = err.originalError;
     console.log(
         chalk.red.underline("Error -> ") + chalk.hex("#fff")(error + " 👇")
     );
@@ -56,7 +58,9 @@ const logErrors: ErrorRequestHandler = function (err, req, res, next) {
 
 const clientErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     if (req.xhr) {
-        res.status(500).send({ error: "Something failed!" });
+        res.status(500).json(
+            ApiResponseFormat.unSuccess500Error("Something failed!")
+        );
     } else {
         next(err);
     }
@@ -64,11 +68,10 @@ const clientErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 const errorHandler: ErrorRequestHandler = function (err, req, res, next) {
     let clientError: any = err;
-    if(typeof err.clientError !== "undefined") clientError = err.clientError;
+    if (typeof err.clientError !== "undefined") clientError = err.clientError;
 
-    // TODO: send error ApiResponseFormat.ts
     res.status(500);
-    res.send({ error: clientError });
+    res.json(ApiResponseFormat.unSuccess500Error(clientError));
 };
 
 Routes.map(item => {

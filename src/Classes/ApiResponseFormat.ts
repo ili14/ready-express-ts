@@ -14,12 +14,12 @@ class ApiResponseFormat {
     static successMsg(msg: string): {
         status: "success";
         mode: ModeType;
-        msg: string;
+        data: string;
     } {
         return {
             status: "success",
             mode: "message",
-            msg: msg,
+            data: msg,
         };
     }
 
@@ -49,15 +49,26 @@ class ApiResponseFormat {
 
     static unSuccessArr(arr: Array<any>): {
         status: "unsuccess";
-        data: { errors: Array<any> };
+        mode: ModeType;
+        data: Array<any>;
     } {
         return {
             status: "unsuccess",
-            data: { errors: arr },
+            mode: "array",
+            data: arr,
         };
     }
 
+    static unSuccess500Error(errors: any): {
+        status: "unsuccess";
+        data: any;
+    } {
+        return {
+            status: "unsuccess",
+            data: errors,
+        };
+    }
 }
 
 export default ApiResponseFormat;
-export {ResponseErrorObjectType};
+export { ResponseErrorObjectType };
