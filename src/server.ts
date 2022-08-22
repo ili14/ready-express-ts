@@ -55,7 +55,7 @@ const logErrors: ErrorRequestHandler = function (err, req, res, next) {
     if (req.timedout) return next("request time out.");
     next(err);
 };
-
+// CHANGED this function
 const clientErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     if (req.xhr) {
         res.status(500).json(
@@ -65,7 +65,7 @@ const clientErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         next(err);
     }
 };
-
+// CHANGED this function
 const errorHandler: ErrorRequestHandler = function (err, req, res, next) {
     let clientError: any = err;
     if (typeof err.clientError !== "undefined") clientError = err.clientError;
